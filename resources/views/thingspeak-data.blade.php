@@ -58,7 +58,7 @@
 
             function fetchDataAndRender() {
                 // const dataUrl = "{{ asset('js/feeds.json') }}";
-                const dataUrl = "https://api.thingspeak.com/channels/276330/feeds.json?results=10";
+                //const dataUrl = "https://api.thingspeak.com/channels/276330/feeds.json?results=10";
                 
                 fetch(dataUrl)
                     .then(response => response.json())
