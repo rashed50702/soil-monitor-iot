@@ -57,8 +57,8 @@
             const dataTable = document.getElementById('dataTable');
 
             function fetchDataAndRender() {
-                // const dataUrl = "{{ asset('js/feeds.json') }}";
-                const dataUrl = "https://api.thingspeak.com/channels/276330/feeds.json?results=10";
+                const dataUrl = "{{ asset('js/feeds.json') }}";
+                // const dataUrl = "https://api.thingspeak.com/channels/276330/feeds.json?results=10";
                 
                 fetch(dataUrl)
                     .then(response => response.json())
@@ -96,7 +96,7 @@
             fetchDataAndRender();
 
             // Fetch data every 5 seconds (adjust as needed)
-            setInterval(fetchDataAndRender, 5000); // 5 seconds interval
+            setInterval(fetchDataAndRender, 2000); // 5 seconds interval
         });
     </script>
 </body>
