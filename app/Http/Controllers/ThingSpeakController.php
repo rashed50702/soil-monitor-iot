@@ -2,75 +2,42 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\ThingspeakDataUpdated;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class ThingSpeakController extends Controller
 {
-
-
     public function showData()
     {
-        // $channelId = 276330;  // Public channel ID for soil moisture data
-        // $url = "https://api.thingspeak.com/channels/{$channelId}/feeds.json?results=10";
+        $channelId = 276330;  // Public channel ID for soil moisture data
+        $url = "https://api.thingspeak.com/channels/{$channelId}/feeds.json?results=10";
 
-        // $response = Http::get($url);
+        $response = Http::get($url);
 
-        // if ($response->successful()) {
-        //     $data = $response->json();
-        //     event(new ThingspeakDataUpdated($data['feeds']));
+        if ($response->successful()) {
+            $data = $response->json();
 
-        //     return view('thingspeak-data', ['data' => $data['feeds']]);
-        // }
-        // $filePath = resource_path('js/feeds.json');
+            if (!empty($data['feeds'])) {
+                // Sort feeds by created_at datetime in descending order
+                usort($data['feeds'], function ($a, $b) {
+                    return strtotime($b['created_at']) - strtotime($a['created_at']);
+                });
 
-        // if (File::exists($filePath)) {
-        //     $data = json_decode(File::get($filePath), true);
-        //     Log::info('Event is being fired'); // Add this line to log the event firing
+                // Get the latest entry
+                $latestEntry = $data['feeds'][0];
 
-        //     event(new ThingspeakDataUpdated($data['feeds']));
+                // Format created_at datetime using Carbon
+                $latestEntry['formatted_created_at'] = Carbon::parse($latestEntry['created_at'])->timezone('Asia/Dhaka')->format('M d, Y, h:i:s A');
+                return view('thingspeak-data', [
+                    'channel' => $data['channel'],
+                    'latestEntry' => $latestEntry
+                ]);
+            }
 
-        //     return view('thingspeak-data', ['data' => $data['feeds']]);
-        // }
+            return view('thingspeak-data', ['channel' => $data['channel'], 'latestEntry' => null]);
+        }
 
-
-        // return view('thingspeak-data', ['data' => []]);
-        return view('thingspeak-data');
-
+        return view('thingspeak-data', ['channel' => [], 'latestEntry' => null]);
     }
-
-
-    // public function showData()
-    // {
-    //     // $channelId = 276330;  // Public channel ID for soil moisture data
-    //     // $url = "https://api.thingspeak.com/channels/{$channelId}/feeds.json?results=10";
-
-    //     // $response = Http::get($url);
-
-    //     // if ($response->successful()) {
-    //     //     $data = $response->json();
-    //     //     event(new ThingspeakDataUpdated($data['feeds']));
-
-    //     //     return view('thingspeak-data', ['data' => $data['feeds']]);
-    //     // }
-    //     $filePath = resource_path('js/feeds.json');
-
-    //     if (File::exists($filePath)) {
-    //         $data = json_decode(File::get($filePath), true);
-    //         Log::info('Event is being fired'); // Add this line to log the event firing
-
-    //         event(new ThingspeakDataUpdated($data['feeds']));
-
-    //         return view('thingspeak-data', ['data' => $data['feeds']]);
-    //     }
-
-
-    //     return view('thingspeak-data', ['data' => []]);
-
-    // }
-
-
 }

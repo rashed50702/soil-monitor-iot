@@ -1,0 +1,13 @@
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    padding: 20px;
+}
+
+.mt-5{
+    margin-top: 5rem!important;
+}
+
+table tbody tr td {
+    vertical-align: middle;
+}
