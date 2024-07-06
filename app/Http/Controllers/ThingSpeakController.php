@@ -11,7 +11,7 @@ class ThingSpeakController extends Controller
     public function showData()
     {
         $channelId = 276330;  // Public channel ID for soil moisture data
-        $url = "https://api.thingspeak.com/channels/{$channelId}/feeds.json?results=10";
+        $url = "https://api.thingspeak.com/channels/{$channelId}/feeds.json";
 
         $response = Http::get($url);
 

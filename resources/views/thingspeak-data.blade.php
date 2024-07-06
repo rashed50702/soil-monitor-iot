@@ -18,7 +18,7 @@
             <div class="container-fluid justify-content-center">
                 <div id="channel">
                     <h3 class="text-center mb-0">{{ $channel['name'] }}</h3>
-                    <p class="mb-0 small text-center">{{ $channel['description'] }}</p>
+                    <p class="mb-0 small text-center">{{ $channel['description'] }} (lat: {{ $channel['latitude'] }}, long: {{ $channel['longitude'] }})</p>
                 </div>
             </div>
         </nav>
@@ -62,50 +62,9 @@
             </div>
         </div>
         <div class="col-sm-12 text-center">
-            <p class="badge rounded-pill bg-secondary">Last Created: <span id="last-created">{{ $latestEntry['formatted_created_at'] }}</span></p>
+            <p class="badge rounded-pill bg-primary">Record last updated: <span id="last-created">{{ $latestEntry['formatted_created_at'] ?? "N/A" }}</span></p>
         </div>
     </div>
-</div>
-
-<div class="container">
-    <h1 class="my-4">Soil Monitor</h1>
-    <table class="table table-bordered table-striped">
-        <thead>
-        <tr>
-            <th>Entry ID</th>
-            <th>Created At</th>
-            <th>Soil Monitor Voltage</th>
-            <th>Device Time</th>
-            <th>Wet Value</th>
-            <th>Manual Water Record</th>
-            <th>Dry Value</th>
-            <th>Email Flag</th>
-            <th>Office Temperature</th>
-            <th>Office Humidity</th>
-        </tr>
-        </thead>
-        <tbody id="dataTable">
-
-        @if($latestEntry)
-            <tr>
-                <td>{{ $latestEntry['entry_id'] }}</td>
-                <td></td>
-                <td>{{ $latestEntry['field1'] ?? 'N/A' }}</td>
-                <td>{{ $latestEntry['field2'] ?? 'N/A' }}</td>
-                <td>{{ $latestEntry['field3'] ?? 'N/A' }}</td>
-                <td>{{ $latestEntry['field4'] ?? 'N/A' }}</td>
-                <td>{{ $latestEntry['field5'] ?? 'N/A' }}</td>
-                <td>{{ $latestEntry['field6'] ?? 'N/A' }}</td>
-                <td>{{ $latestEntry['field7'] ?? 'N/A' }}</td>
-                <td>{{ $latestEntry['field8'] ?? 'N/A' }}</td>
-            </tr>
-        @else
-            <tr>
-                <td colspan="10">No data available.</td>
-            </tr>
-        @endif
-        </tbody>
-    </table>
 </div>
 
 <!-- Bootstrap JS and dependencies -->
@@ -136,32 +95,17 @@
         const soilMonitorVoltage = document.getElementById('soil-monitor-voltage');
         const officeTemperature = document.getElementById('office-temperature');
         const officeHumidity = document.getElementById('office-humidity');
-        const dataTable = document.getElementById('dataTable');
+        const lastCreated = document.getElementById('last-created');
 
         function updateUI(entry) {
             soilMonitorVoltage.textContent = entry.field1 !== null ? entry.field1 + 'V' : 'N/A';
             officeTemperature.textContent = entry.field7 !== null ? entry.field7 + '°C' : 'N/A';
             officeHumidity.textContent = entry.field8 !== null ? entry.field8 + '%' : 'N/A';
-
-            console.log(entry.created_at);
-            dataTable.innerHTML = `
-                <tr>
-                    <td>${entry.entry_id}</td>
-                    <td>${formatJavaScriptDateAsiaDhaka(entry.created_at)}</td>
-                    <td>${entry.field1 !== null ? entry.field1 : 'N/A'}</td>
-                    <td>${entry.field2 !== null ? entry.field2 : 'N/A'}</td>
-                    <td>${entry.field3 !== null ? entry.field3 : 'N/A'}</td>
-                    <td>${entry.field4 !== null ? entry.field4 : 'N/A'}</td>
-                    <td>${entry.field5 !== null ? entry.field5 : 'N/A'}</td>
-                    <td>${entry.field6 !== null ? entry.field6 : 'N/A'}</td>
-                    <td>${entry.field7 !== null ? entry.field7 : 'N/A'}</td>
-                    <td>${entry.field8 !== null ? entry.field8 : 'N/A'}</td>
-                </tr>
-            `;
+            lastCreated.textContent = entry.created_at !== null ? formatJavaScriptDateAsiaDhaka(entry.created_at) : 'N/A';
         }
 
         function fetchDataAndUpdate() {
-            const dataUrl = "https://api.thingspeak.com/channels/276330/feeds.json?results=10";
+            const dataUrl = "https://api.thingspeak.com/channels/276330/feeds.json";
 
             fetch(dataUrl)
                 .then(response => response.json())
@@ -173,8 +117,6 @@
                         // Get the latest entry
                         const latestEntry = data.feeds[0];
                         updateUI(latestEntry);
-                    } else {
-                        dataTable.innerHTML = `<tr><td colspan="10">No data available.</td></tr>`;
                     }
                 })
                 .catch(error => {
